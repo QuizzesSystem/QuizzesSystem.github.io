@@ -22,18 +22,18 @@
         // When the single page app is loaded further down in this file,
         // the correct url will be waiting in the browser's history for
         // the single page app to route accordingly.
-        (function(l) {
-          if (l.search[1] === '/' ) {
-            var decoded = l.search.slice(1).split('&').map(function(s) { 
-              return s.replace(/~and~/g, '&')
-            }).join('?');
-            window.history.replaceState(null, null,
-                l.pathname.slice(0, -1) + decoded + l.hash
-            );
-          }
+        (function (l) {
+            if (l.search[1] === '/') {
+                var decoded = l.search.slice(1).split('&').map(function (s) {
+                    return s.replace(/~and~/g, '&')
+                }).join('?');
+                window.history.replaceState(null, null,
+                    l.pathname.slice(0, -1) + decoded + l.hash
+                );
+            }
         }(window.location))
-      </script>
-      <!-- End Single Page Apps for GitHub Pages -->
+    </script>
+    <!-- End Single Page Apps for GitHub Pages -->
 
     <script src="/src/app.js" type="module"></script>
 </head>
@@ -64,7 +64,16 @@
             <!-- Dynamic content here -->
         </main>
 
-        <footer id="footer">Viktor Kostadinov &copy; 2021</footer>
+        <footer id="footer">
+            <span>
+                <p>Vasil Tatarov: My Portfolio -
+                    <span>
+                        <a style="color: aliceblue;" href="https://vasiltatarov.github.io/Vasko00/"
+                            target="_blank">Here.</a>
+                    </span>
+                </p>
+            </span>
+        </footer>
 
         <div id="views">
 

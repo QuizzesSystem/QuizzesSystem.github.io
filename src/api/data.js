@@ -2,8 +2,8 @@ import * as api from './api.js';
 
 const host = 'https://parseapi.back4app.com';
 api.settings.host = host;
-api.settings.appId = 'C5El0gpny7zVGYZyuy4ElduX5yVNiUYgndL6mbOA';
-api.settings.apiKey = 'xlUA5jfBbIvbaNMRU7TXOAwN2jBEB31t9wa2yjYu';
+api.settings.appId = 'NLxga8mBIFOVP93xqoWaSSYqHXV11HcFVqqHiFnP';
+api.settings.apiKey = 'eMtl15RDcb8yOdMIOkV2JBE49BTiCwzNgZbrjCCz';
 
 export const login = api.login;
 export const register = api.register;
@@ -19,7 +19,7 @@ function createPointer(name, id) {
 }
 
 function addOwner(object) {
-    const userId = sessionStorage.getItem('userId');
+    const userId = sessionStorage.getItem('objectId');
     const result = Object.assign({}, object);
     result.owner = createPointer('_User', userId);
     return result;
@@ -86,4 +86,37 @@ export async function updateQuestion(id, question) {
 
 export async function deleteQuestion(id) {
     return await api.del(host + '/classes/Question/' + id);
+}
+
+
+// Solution Collection
+export async function getSolutionsByUserId(userId) {
+    const query = JSON.stringify({ owner: createPointer('_User', userId) });
+    const response = await api.get(host + '/classes/Solution?where=' + encodeURIComponent(query));
+    return response.results;
+}
+
+export async function getSolutionsByQuizId(quizId) {
+    const query = JSON.stringify({ owner: createPointer('Quiz', quizId) });
+    const response = await api.get(host + '/classes/Solution?where=' + encodeURIComponent(query));
+    return response.results;
+}
+
+export async function submitSolution(quizId, solution) {
+    const body = addOwner(solution);
+    body.quiz = createPointer('Quiz', quizId);
+    return await api.post(host + '/classes/Solution', body);
+}
+
+export async function getSolutionCount(quizIds) {
+    const query = JSON.stringify({ $or: quizIds.map(id => ({ quiz: createPointer('Quiz', id) })) });
+    const solutions = (await api.get(host + '/classes/Solution?where=' + encodeURIComponent(query))).results;
+    const result = solutions.reduce((a, c) => {
+        const id = c.quiz.objectId;
+        if (!a[id]) { a[id] = 0; }
+        a[id]++;
+        return a;
+    }, {});
+
+    return result;
 }

@@ -2,6 +2,8 @@ import { html, render } from '../../lib.js';
 import { createAnswerList } from './answer.js';
 
 import { createOverlay } from '../common/loader.js';
+import { createQuestion as apiCreate, updateQuestion } from '../../api/data.js';
+
 
 const editorTemplate = (data, index, onSave, onCancel) => html`
 <div class="layout">
@@ -49,23 +51,31 @@ const radioView = (value, checked) => html`
     <span>${value}</span>
 </div>`;
 
-export function createQuestion(question, index, edit) {
+
+export function createQuestion(quizId, question, removeQuestion, updateCount, edit) {
+    let currentQuestion = copyQuestion(question);
+    let index = 0;
+    let editorActive = edit || false;
     const element = document.createElement('article');
     element.className = 'editor-question';
 
     showView();
 
-    return element;
+    return update;
 
-    function onEdit() {
-        showEditor();
+    function update(newIndex) {
+        index = newIndex;
+        if (editorActive) {
+            showEditor();
+        } else {
+            showView();
+        }
+        return element;
     }
 
-    function onDelete() {
-        const confirmed = confirm('Are you sure you want to delete this question?');
-        if (confirmed) {
-            element.remove();
-        }
+    function onEdit() {
+        editorActive = true;
+        showEditor();
     }
 
     async function onSave() {
@@ -112,14 +122,28 @@ export function createQuestion(question, index, edit) {
     }
 
     function onCancel() {
+        editorActive = false;
+        currentQuestion = copyQuestion(question);
         showView();
     }
 
     function showView() {
-        render(viewTemplate(question, index, onEdit, onDelete), element);
+        const onDelete = async (index) => {
+            const loader = createOverlay();
+            element.appendChild(loader);
+            await removeQuestion(index, question.objectId);
+        };
+        render(viewTemplate(currentQuestion, index, onEdit, onDelete), element);
     }
 
     function showEditor() {
-        render(editorTemplate(question, index, onSave, onCancel), element);
+        render(editorTemplate(currentQuestion, index, onSave, onCancel), element);
     }
+}
+
+function copyQuestion(question) {
+    const currentQuestion = Object.assign({}, question);
+    currentQuestion.answers = currentQuestion.answers.slice();
+
+    return currentQuestion;
 }
